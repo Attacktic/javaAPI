@@ -7,6 +7,7 @@ import static spark.Spark.post;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.List;
 
 
 
@@ -34,12 +35,17 @@ public class FirstExample {
             sql = "insert into passwords values(default, " + user_id + ", '" + hash  + "')";
             return sql;
         }
+        public String getAllUsers(String email){ //original:list
+        	String sql;
+            sql = "select * from users where email='" + email + "'";
+            return sql;
+        }
     }
    public static void main(String[] args) {
 	   post("/users", (request, response) -> {
 		 Connection conn = null;
 		 Statement stmt = null;
-   try{
+		 try{
 		   Model model = new Model();
 		  Class.forName("org.postgresql.Driver");
 		  conn = DriverManager.getConnection(DB_URL);
@@ -54,6 +60,56 @@ public class FirstExample {
 		     //Display values
 		     //System.out.print("ID: " + id);
 		     //System.out.print(", Name: " + name);
+		  }
+		  rs.close();
+		  stmt.close();
+		  conn.close();
+   }
+   
+  catch(SQLException se){
+		  //Handle errors for JDBC
+		  se.printStackTrace();
+   }catch(Exception e){
+		  //Handle errors for Class.forName
+		  e.printStackTrace();
+   }finally{
+		  //finally block used to close resources
+		  try{
+		     if(stmt!=null)
+		        stmt.close();
+		  }catch(SQLException se2){
+		  }// nothing we can do
+		  try{
+		     if(conn!=null)
+		        conn.close();
+		  }catch(SQLException se){
+		     se.printStackTrace();
+		  }//end finally try
+   }
+		return request;
+	   });
+	   get("/verify", (request, response) -> {
+		 Connection conn = null;
+		 Statement stmt = null;
+		 try{
+		   Model model = new Model();
+		  Class.forName("org.postgresql.Driver");
+		  conn = DriverManager.getConnection(DB_URL);
+		  stmt = conn.createStatement();
+		  ResultSet rs = stmt.executeQuery(model.getAllUsers("teo"));
+		  if(rs.next()){
+		     //Retrieve by column name
+		     int id  = rs.getInt("id");
+		    // stmt = conn.createStatement();
+			 //ResultSet psrs = stmt.executeQuery(model.createPass(id, "password"));
+		     String name = rs.getString("name");
+		     //Display values
+		     System.out.print("##########ID: " + id);
+		     //System.out.print(", Name: " + name);
+		  }
+		  else{
+			 System.out.print("not found");
+			 //send "not found" to client
 		  }
 		  rs.close();
 		  stmt.close();
