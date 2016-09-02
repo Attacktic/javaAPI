@@ -35,9 +35,14 @@ public class FirstExample {
             sql = "insert into passwords values(default, " + user_id + ", '" + hash  + "')";
             return sql;
         }
-        public String getAllUsers(String email){ //original:list
+        public String getAllUsers(String email){
         	String sql;
             sql = "select * from users where email='" + email + "'";
+            return sql;
+        }
+        public String getPass(int user_id){
+        	String sql;
+            sql = "select * from passwords where user_id='" + user_id + "'";
             return sql;
         }
     }
@@ -96,16 +101,18 @@ public class FirstExample {
 		  Class.forName("org.postgresql.Driver");
 		  conn = DriverManager.getConnection(DB_URL);
 		  stmt = conn.createStatement();
-		  ResultSet rs = stmt.executeQuery(model.getAllUsers("teo"));
+		  ResultSet rs = stmt.executeQuery(model.getAllUsers("data"));
 		  if(rs.next()){
-		     //Retrieve by column name
+		     //retrieve user by email
 		     int id  = rs.getInt("id");
-		    // stmt = conn.createStatement();
-			 //ResultSet psrs = stmt.executeQuery(model.createPass(id, "password"));
-		     String name = rs.getString("name");
-		     //Display values
-		     System.out.print("##########ID: " + id);
-		     //System.out.print(", Name: " + name);
+		     stmt = conn.createStatement();
+			 ResultSet psrs = stmt.executeQuery(model.getPass(id));
+			  if(psrs.next()){
+				  //retrieving password from user
+				String hash = psrs.getString("hash");
+				System.out.print("Password "+hash);
+				//IF PASSWORD === INPUT
+			  }
 		  }
 		  else{
 			 System.out.print("not found");
