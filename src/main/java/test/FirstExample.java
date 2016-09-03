@@ -8,6 +8,18 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.List;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+
+import org.json.JSONObject;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
+//import app.NewPlaces;
 
 
 
@@ -93,7 +105,15 @@ public class FirstExample {
    }
 		return request;
 	   });
-	   get("/verify", (request, response) -> {
+	   post("/verify", (request, response) -> {
+		   JsonParser parser = new JsonParser();
+		   JsonElement jsonTree = parser.parse(request.body());
+		   if(jsonTree.isJsonObject()) {
+			    JsonObject jsonObject = jsonTree.getAsJsonObject();
+			    System.out.println(jsonObject);
+			    JsonElement email = jsonObject.get("email");
+			    System.out.println(email);
+			}
 		 Connection conn = null;
 		 Statement stmt = null;
 		 try{
